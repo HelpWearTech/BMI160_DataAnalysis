@@ -1,7 +1,7 @@
 %addpath('Gait\Gaitt\Quaternions');
 %addpath('Gait\Gaitt\ximu_matlab_library');
 clear;
-Array=csvread('Datasets/ecg.csv');
+Array=csvread('Datasets/no_movement_upright.csv');
 time = size(Array,1);
 input_accX = Array(:, 8);
 input_accY = Array(:, 9);
