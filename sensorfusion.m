@@ -1,7 +1,7 @@
 %addpath('Gait\Gaitt\Quaternions');
 %addpath('Gait\Gaitt\ximu_matlab_library');
 clear;
-Array=csvread('ecg.csv');
+Array=csvread('Datasets/ecg.csv');
 time = size(Array,1);
 input_accX = Array(:, 8);
 input_accY = Array(:, 9);
@@ -38,13 +38,19 @@ accelerometerReadings = [accX accY accZ];
 gyroscopeReadings = [gyrX gyrY gyrZ];
 q = fuse(accelerometerReadings,gyroscopeReadings);
 time = (0:decim:size(accelerometerReadings,1)-1)/Fs;
-eulerAngles = eulerd(q,'XYZ','frame');
+eulerAngles = eulerd(q,'ZYX','frame');
 figure(1);
 plot(time,eulerAngles);
 title('Orientation Estimate')
-legend('X-axis', 'Y-axis', 'Z-axis')
+legend('Z-axis', 'Y-axis', 'X-axis')
 xlabel('Time (s)')
 ylabel('Rotation (degrees)')
+
+viewer = HelperOrientationViewer;
+for ii=1:size(accelerometerReadings,1)
+    viewer(q);
+    pause(1);
+end
 
 zeroed_eulerAngles = eulerAngles;
 for n = size(eulerAngles):-1:1
