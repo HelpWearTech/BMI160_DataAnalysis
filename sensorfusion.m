@@ -46,11 +46,11 @@ legend('Z-axis', 'Y-axis', 'X-axis')
 xlabel('Time (s)')
 ylabel('Rotation (degrees)')
 
-viewer = HelperOrientationViewer;
-for ii=1:size(accelerometerReadings,1)
-    viewer(q);
-    pause(1);
-end
+%viewer = HelperOrientationViewer;
+%for ii=1:size(accelerometerReadings,1)
+%    viewer(q);
+%    pause(0.1);
+%end
 
 zeroed_eulerAngles = eulerAngles;
 for n = size(eulerAngles):-1:1
@@ -89,3 +89,40 @@ title('Absolute Orientation Estimate')
 legend('X-axis', 'Y-axis', 'Z-axis')
 xlabel('Time (s)')
 ylabel('Rotation (degrees)')
+
+
+%optimization attempt on flat data to find noise on accelerometer
+accel_best_result = optimizeA(0.1,1,accelerometerReadings,gyroscopeReadings)
+
+function optimal = optimizeA(l,r,accelerometerReadings,gyroscopeReadings)
+    left = l;
+    right = r;
+    middle = left + (right-left)/2;
+    fuse = imufilter('SampleRate',25,'DecimationFactor',1,'ReferenceFrame','NED','AccelerometerNoise',left);
+    qLeft = fuse(accelerometerReadings,gyroscopeReadings);
+    eulerLeft = eulerd(qLeft,'ZYX','frame');
+    avg_qLeft = mean(eulerLeft,'all');
+
+    fuse = imufilter('SampleRate',25,'DecimationFactor',1,'ReferenceFrame','NED','AccelerometerNoise',middle);
+    qMid = fuse(accelerometerReadings,gyroscopeReadings);
+    eulerMid = eulerd(qMid,'ZYX','frame');
+    avg_qMid = mean(eulerMid,'all');
+
+    fuse = imufilter('SampleRate',25,'DecimationFactor',1,'ReferenceFrame','NED','AccelerometerNoise',right);
+    qRight = fuse(accelerometerReadings,gyroscopeReadings);
+    eulerRight = eulerd(qRight,'ZYX','frame');
+    avg_qRight = mean(eulerRight,'all');
+
+    if abs(avg_qLeft) < abs(avg_qMid)
+        right = middle;
+        optimizeA(left,right,accelerometerReadings,gyroscopeReadings);
+    end
+    if abs(avg_qRight) < abs(avg_qMid)
+        left = middle;
+        optimizeA(left,right,accelerometerReadings,gyroscopeReadings);
+    end
+    if (abs(avg_qMid) < abs(avg_qLeft) && abs(avg_qMid) < abs(avg_qRight)) || abs(avg_qMid) < 0.00001
+        optimal = middle;
+    end
+    return;
+end
