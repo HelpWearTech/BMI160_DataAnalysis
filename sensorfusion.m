@@ -23,9 +23,9 @@ for n = 1 : length(input_accX)
     accY(counter,1) = ((input_accY(n,1)-32768)/16384)*9.81;
     accZ(counter,1) = ((input_accZ(n,1)-32768)/16384)*9.81;
     % Convert raw data into rad/s
-    gyrX(counter,1) = ((input_gyrX(n,1)-32768)/16.4)*pi/180;
-    gyrY(counter,1) = ((input_gyrY(n,1)-32768)/16.4)*pi/180;
-    gyrZ(counter,1) = ((input_gyrZ(n,1)-32768)/16.4)*pi/180;
+    gyrX(counter,1) = ((input_gyrX(n,1)-32768)/264.2)*pi/180;
+    gyrY(counter,1) = ((input_gyrY(n,1)-32768)/264.2)*pi/180;
+    gyrZ(counter,1) = ((input_gyrZ(n,1)-32768)/264.2)*pi/180;
     counter = counter + 1;
   end
 end
